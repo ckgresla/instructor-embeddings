@@ -53,3 +53,24 @@ for i, s in enumerate(tqdm(demo_data)):
 
     sim = np.dot(target_embedding[0], embedded[0]) / np.linalg.norm(target_embedding) * np.linalg.norm(embedded)
     print(f"    {sim :2f} similarity for: {demo_data[i]}")
+
+
+# Pass 2 -- w a better prompt!
+print("those scores look rather mid as a semantic similarity between the strings, can we do better?")
+print("we might be able to by *prompting* this model!")
+new_prompt = "Embed these strings to capture relationships with the following keywords (coffee, cafe, drinking), make anything not related to these keywords very disimilar, this will be used for semantic similarity calculations: "
+
+
+print(f"lets retry calculating the similarities with the following as our model prompt: {new_prompt}")
+demo_embeddings = []
+target_embedding = model.compute_embedding(target_string)
+
+for i, s in enumerate(tqdm(demo_data)):
+    embedded = model.compute_embedding(s, prompt=new_prompt)
+    demo_embeddings.append(embedded)
+
+    sim = np.dot(target_embedding[0], embedded[0]) / np.linalg.norm(target_embedding) * np.linalg.norm(embedded)
+    print(f"    {sim :2f} similarity for: {demo_data[i]}")
+
+
+
