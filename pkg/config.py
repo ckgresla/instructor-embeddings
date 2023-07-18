@@ -37,12 +37,12 @@ def load_env_file(dotenv_path, override=False):
             os.environ.setdefault(key, value)
     return list(dotenv_vars.keys())
 
+
+# Hacky method to load in environment variable contents as python vars
 # Load in the .env contents + Create named vars in Python Runtime
-keys = load_env_file(ENVIRONMENT_FILEPATH, override=False)
-
-
-for key in keys:
-    vars()[key] = os.environ[key] #create a runtime variable mapping each key-->value from the .env
+# keys = load_env_file(ENVIRONMENT_FILEPATH, override=False)
+# for key in keys:
+    # vars()[key] = os.environ[key] #create a runtime variable mapping each key-->value from the .env
 # some_env_var = os.environ["some_env_var"] #above loop avoids having to maintain this for all vars we want to make, linter will not detect because sneaky variable assignment...
 
 

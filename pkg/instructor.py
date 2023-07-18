@@ -123,7 +123,6 @@ class INSTRUCTOR_Pooling(nn.Module):
         return "+".join(modes)
 
     def forward(self, features):
-        # print(features.keys())
         token_embeddings = features["token_embeddings"]
         attention_mask = features["attention_mask"]
 
@@ -328,15 +327,11 @@ class INSTRUCTOR_Transformer(Transformer):
 
         self.max_seq_length = max_seq_length
 
-        # print('max_seq_length ',max_seq_length)
-
         if tokenizer_name_or_path is not None:
             self.auto_model.config.tokenizer_class = self.tokenizer.__class__.__name__
 
     def forward(self, features):
         """Returns token_embeddings, cls_token"""
-        # print(features)
-        # exit(0)
         trans_features = {
             "input_ids": features["input_ids"],
             "attention_mask": features["attention_mask"],
@@ -355,7 +350,6 @@ class INSTRUCTOR_Transformer(Transformer):
 
             assert len(context_masks) == len(attention_mask)
             n = len(attention_mask)
-            # print('n ',n)
             for local_idx in range(n):
                 assert (
                     torch.sum(attention_mask[local_idx]).item()
@@ -366,7 +360,6 @@ class INSTRUCTOR_Transformer(Transformer):
                 )
                 attention_mask[local_idx][: context_masks[local_idx]] = 0
 
-        # print('forward here')
         features.update(
             {"token_embeddings": output_tokens, "attention_mask": attention_mask}
         )
@@ -574,27 +567,20 @@ class INSTRUCTOR(SentenceTransformer):
 
         # Load the modules of sentence transformer
         modules_json_path = os.path.join(model_path, "modules.json")
-        # printwar(modules_json_path)
         with open(modules_json_path) as fIn:
             modules_config = json.load(fIn)
 
         modules = OrderedDict()
         for module_config in modules_config:
-            # printlog(f"Module Config: {module_config}")
 
             if module_config["type"] == "sentence_transformers.models.Transformer":
-                # printlog("Loading 'INSTRUCTOR_Transformer' from Disk")
                 module_class = INSTRUCTOR_Transformer
             elif module_config["type"] == "sentence_transformers.models.Pooling":
-                # printlog("Loading 'INSTRUCTOR_Transformer_Pooling' from Disk")
                 module_class = INSTRUCTOR_Pooling
             else:
-                # printlog("Loading Module Config  (type not recognized in embeddings.py file) from Disk")
                 module_class = import_from_string(module_config["type"])
             module = module_class.load(os.path.join(model_path, module_config["path"]))
             modules[module_config["name"]] = module
-
-        printok("  Model Loaded in Successfully")
         return modules
 
     def encode(
